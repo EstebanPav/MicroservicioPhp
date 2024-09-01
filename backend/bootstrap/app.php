@@ -8,17 +8,19 @@ require_once __DIR__.'/../vendor/autoload.php';
 
 date_default_timezone_set(env('APP_TIMEZONE', 'UTC'));
 
-
 $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
-// Enable Eloquent ORM
 $app->withEloquent();
 $app->withFacades();
 
 $app->middleware([
-    App\Http\Middleware\CorsMiddleware::class
+    App\Http\Middleware\CorsMiddleware::class,
+]);
+
+$app->routeMiddleware([
+    'auth' => App\Http\Middleware\Authenticate::class,
 ]);
 
 $app->singleton(
@@ -31,8 +33,11 @@ $app->singleton(
     App\Console\Kernel::class
 );
 
-$app->configure('app');
+$app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 
+$app->configure('app');
+$app->configure('auth');
+$app->configure('jwt');
 
 $app->router->group([
     'namespace' => 'App\Http\Controllers',
